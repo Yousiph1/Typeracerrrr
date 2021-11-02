@@ -21,8 +21,11 @@ const Home: NextPage = () => {
      let widthElem = document.getElementById("road")
      let width
      if(widthElem) width =  window.getComputedStyle((widthElem as HTMLElement)).width
+     if(width){
        setTotalDistance(Number(width.substr(0, width.length - 2)) - 70)
        setVelocity(totalDistance/phrase.length)
+     }
+
      },[])
 
    const handleType = (e : React.ChangeEvent<HTMLInputElement>):void => {
@@ -77,7 +80,11 @@ const Home: NextPage = () => {
          setSpeed(0)
           console.log(totalDistance,phrase.length)
            setVelocity(totalDistance/phrase.length)
-         document.getElementById("textInput").setAttribute("data-started","false")
+         let elem = document.getElementById("textInput")
+         if (elem){
+            elem.setAttribute("data-started","false")
+         }
+
    }
 
   return (
