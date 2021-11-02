@@ -1,7 +1,10 @@
 import type { NextPage } from 'next'
 import React,{useState,useEffect,useRef} from 'react'
+import axios from "axios"
 import styles from '../styles/Home.module.css'
 
+
+const api = "http://quotes.rest/qod.json"
 const Home: NextPage = () => {
    const [phrase, setPhrase] = useState("understood each other in a way, me and my mom and my dad. As screwed up as we all were, we did understand each other. My mother, she knew what it's like to feel your entire life like you're drowning with the exception of these moments, these very rare, brief instances, in which you suddenly remember... you can swim.")
    const [distance, setDistance] = useState(0)
@@ -11,14 +14,14 @@ const Home: NextPage = () => {
    const [hasError, setHasError] = useState(false)
    const [timeStart, setTimeStart] = useState(Date.now())
    const [speed, setSpeed] = useState(0)
-   let totalDistance: number
+   const [totalDistance, setTotalDistance] = useState(5)
    const [velocity, setVelocity]  = useState(0)
 
    useEffect(()=> {
      let widthElem = document.getElementById("road")
      let width
      if(widthElem) width =  window.getComputedStyle((widthElem as HTMLElement)).width
-       totalDistance = Number(width.substr(0, width.length - 2)) - 70
+       setTotalDistance(Number(width.substr(0, width.length - 2)) - 70)
        setVelocity(totalDistance/phrase.length)
      },[])
 
@@ -41,14 +44,26 @@ const Home: NextPage = () => {
           setRemaining(remaining => remaining.split(" ").slice(1).join(" "))
           e.target.value = ""
           setDistance(completed.length * velocity)
-          let words = completed.length / 5
+          console.log(velocity);
+          let words = completed.length / 4
           setSpeed(Math.ceil((60000 * words)/(Date.now() - timeStart)))
         }
       }
    }
 
+   async function fetchData()  {
+     try {
+       await axios.get('https://api.quotable.io/random')
+       .then(res => {
+         setPhrase(res.data.content)
+       })
+     } catch (error) {
+      alert("something went wrong")
+    }
+   }
+
    const resetRace = ():void => {
-         setPhrase("understood each other in a way, me and my mom and my dad. As screwed up as we all were, we did understand each other. My mother, she knew what it's like to feel your entire life like you're drowning with the exception of these moments, these very rare, brief instances, in which you suddenly remember... you can swim.")
+         fetchData()
          setCurrent(phrase.split(" ")[0])
          setRemaining(phrase.split(" ").slice(1).join(" "))
          setCompleted("")
@@ -60,6 +75,8 @@ const Home: NextPage = () => {
            inputElem.focus()
          }
          setSpeed(0)
+          console.log(totalDistance,phrase.length)
+           setVelocity(totalDistance/phrase.length)
          document.getElementById("textInput").setAttribute("data-started","false")
    }
 
